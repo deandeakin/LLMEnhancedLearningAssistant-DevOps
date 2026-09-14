@@ -29,5 +29,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Code Quality') {
+            steps {
+                echo 'Running SonarCloud code quality analysis'
+
+                withCredentials([
+                    string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')
+                ]) {
+                    bat 'npx --yes @sonar/scan -Dsonar.token=%SONAR_TOKEN%'
+                }
+            }
+        }
     }
 }
