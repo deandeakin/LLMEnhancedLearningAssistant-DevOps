@@ -21,6 +21,7 @@ import com.deankennedy.llmenhancedlearningapp.R;
 import com.deankennedy.llmenhancedlearningapp.data.AppDatabase;
 import com.deankennedy.llmenhancedlearningapp.data.TaskHistory;
 import com.deankennedy.llmenhancedlearningapp.utils.UserPrefs;
+import com.deankennedy.llmenhancedlearningapp.utils.LearningStatsCalculator;
 
 import java.util.List;
 import java.util.Set;
@@ -96,31 +97,20 @@ public class ProfileActivity extends AppCompatActivity {
 
     // Calculates the user's learning stats from submitted task history.
     private void loadLearningStats() {
-        List<TaskHistory> historyList = database.taskHistoryDao().getHistoryForUser(username);
+        List<TaskHistory> historyList =
+                database.taskHistoryDao().getHistoryForUser(username);
 
-        totalQuestionsAnswered = 0;
-        correctlyAnswered = 0;
-        incorrectlyAnswered = 0;
+        LearningStatsCalculator.LearningStats stats =
+                LearningStatsCalculator.calculate(historyList);
 
-        // Only final answers are counted.
-        for (TaskHistory history : historyList) {
-            if ("submit".equals(history.getUtilityUsed())) {
-                String selectedAnswer = history.getSelectedAnswer();
-                String correctAnswer = history.getCorrectAnswer();
+        totalQuestionsAnswered = stats.getTotalQuestionsAnswered();
+        correctlyAnswered = stats.getCorrectlyAnswered();
+        incorrectlyAnswered = stats.getIncorrectlyAnswered();
 
-                if (selectedAnswer != null && correctAnswer != null) {
-                    totalQuestionsAnswered++;
-
-                    if (selectedAnswer.trim().equals(correctAnswer.trim())) {
-                        correctlyAnswered++;
-                    } else {
-                        incorrectlyAnswered++;
-                    }
-                }
-            }
-        }
-
-        String statsText = "Total Questions Answered: " + totalQuestionsAnswered + "\nCorrectly Answered: " + correctlyAnswered + "\nIncorrectly Answered: " + incorrectlyAnswered;
+        String statsText =
+                "Total Questions Answered: " + totalQuestionsAnswered +
+                        "\nCorrectly Answered: " + correctlyAnswered +
+                        "\nIncorrectly Answered: " + incorrectlyAnswered;
 
         tvProfileStats.setText(statsText);
     }
