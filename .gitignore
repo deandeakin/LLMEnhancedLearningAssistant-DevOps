@@ -13,3 +13,15 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Node backend
+backend/node_modules/
+backend/.env
+.env
+.env.*
+!.env.example
+node_modules/
+
+# Android Studio local IDE files
+.idea/.name
+.idea/markdown.xml
