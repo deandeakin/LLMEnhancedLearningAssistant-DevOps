@@ -17,5 +17,17 @@ pipeline {
                                  fingerprint: true
             }
         }
+
+        stage('Test') {
+            steps {
+                echo 'Running Android unit tests'
+                bat 'gradlew.bat testDebugUnitTest'
+
+                echo 'Running backend integration tests'
+                dir('backend') {
+                    bat 'npm test'
+                }
+            }
+        }
     }
 }

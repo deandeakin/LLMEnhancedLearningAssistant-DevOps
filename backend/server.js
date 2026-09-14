@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY
@@ -14,6 +14,11 @@ const ai = new GoogleGenAI({
 
 app.use(cors());
 app.use(express.json());
+
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok" });
+});
+
 function buildTaskPrompt(body) {
     const interestsText = Array.isArray(body.interests) && body.interests.length > 0
         ? body.interests.join(", ")
@@ -108,6 +113,11 @@ Keep the response under 120 words.
 
 app.post("/generate-task", async (req, res) => {
     try {
+        if (!req.body.username) {
+            return res.status(400).json({
+                error: "Username is required."
+            });
+        }
         const prompt = buildTaskPrompt(req.body);
 
         const response = await ai.models.generateContent({
