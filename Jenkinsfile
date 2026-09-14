@@ -41,5 +41,15 @@ pipeline {
                 }
             }
         }
+
+        stage('Security') {
+            steps {
+                echo 'Running backend dependency security scan'
+
+                dir('backend') {
+                    bat 'npm audit --audit-level=high'
+                }
+            }
+        }
     }
 }
