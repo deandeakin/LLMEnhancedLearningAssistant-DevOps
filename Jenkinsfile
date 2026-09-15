@@ -118,12 +118,14 @@ pipeline {
 
         stage('Monitoring') {
             steps {
-                echo 'Verifying production monitoring'
-
+                echo 'Verifying production application health'
                 bat 'curl.exe --fail --silent --show-error http://localhost:3002/health'
 
-                echo 'Confirming New Relic monitoring configuration'
-                bat 'docker exec llm-learning-production printenv NEW_RELIC_APP_NAME'
+                echo 'Waiting for New Relic agent connection'
+                bat 'powershell -Command "Start-Sleep -Seconds 10"'
+
+                echo 'Verifying New Relic monitoring connection'
+                bat 'docker logs llm-learning-production 2>&1 | findstr /C:"Agent state changed from connected to started."'
             }
         }
     }
