@@ -80,5 +80,33 @@ pipeline {
                 bat 'curl.exe --fail --silent --show-error http://localhost:3001/health'
             }
         }
+
+        stage('Release') {
+            steps {
+                echo 'Creating versioned production release'
+
+                bat 'docker tag llm-learning-backend:staging llm-learning-backend:build-%BUILD_NUMBER%'
+                bat 'docker tag llm-learning-backend:staging llm-learning-backend:production'
+
+                echo 'Removing previous production container if present'
+                bat 'docker rm -f llm-learning-production 2>nul || exit /b 0'
+
+                echo 'Deploying versioned release to production'
+
+                withCredentials([
+                    string(credentialsId: 'GEMINI_API_KEY', variable: 'GEMINI_API_KEY')
+                ]) {
+                    bat '''
+                        docker run -d --name llm-learning-production -p 3002:3000 -e GEMINI_API_KEY -e NODE_ENV=production llm-learning-backend:build-%BUILD_NUMBER%
+                    '''
+                }
+
+                echo 'Waiting for production backend to start'
+                bat 'powershell -Command "Start-Sleep -Seconds 3"'
+
+                echo 'Verifying production release'
+                bat 'curl.exe --fail --silent --show-error http://localhost:3002/health'
+            }
+        }
     }
 }
