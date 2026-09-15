@@ -94,10 +94,17 @@ pipeline {
                 echo 'Deploying versioned release to production'
 
                 withCredentials([
-                    string(credentialsId: 'GEMINI_API_KEY', variable: 'GEMINI_API_KEY')
+                    string(credentialsId: 'GEMINI_API_KEY', variable: 'GEMINI_API_KEY'),
+                    string(credentialsId: 'NEW_RELIC_LICENSE_KEY', variable: 'NEW_RELIC_LICENSE_KEY')
                 ]) {
                     bat '''
-                        docker run -d --name llm-learning-production -p 3002:3000 -e GEMINI_API_KEY -e NODE_ENV=production llm-learning-backend:build-%BUILD_NUMBER%
+                        docker run -d --name llm-learning-production -p 3002:3000 ^
+                        -e GEMINI_API_KEY ^
+                        -e NEW_RELIC_LICENSE_KEY ^
+                        -e "NEW_RELIC_APP_NAME=LLM Learning Backend Production" ^
+                        -e NEW_RELIC_LOG=stdout ^
+                        -e NODE_ENV=production ^
+                        llm-learning-backend:build-%BUILD_NUMBER%
                     '''
                 }
 
@@ -106,6 +113,17 @@ pipeline {
 
                 echo 'Verifying production release'
                 bat 'curl.exe --fail --silent --show-error http://localhost:3002/health'
+            }
+        }
+
+        stage('Monitoring') {
+            steps {
+                echo 'Verifying production monitoring'
+
+                bat 'curl.exe --fail --silent --show-error http://localhost:3002/health'
+
+                echo 'Confirming New Relic monitoring configuration'
+                bat 'docker exec llm-learning-production printenv NEW_RELIC_APP_NAME'
             }
         }
     }
