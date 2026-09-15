@@ -4,12 +4,13 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --experimental-loader newrelic/esm-loader.mjs -r newrelic server.js",
     "test": "node --test server.test.js"
   },
   "dependencies": {
     "@google/genai": "^2.22.0",
     "dotenv": "^16.4.5",
-    "express": "^4.22.3"
+    "express": "^4.22.3",
+    "newrelic": "^14.4.0"
   }
 }
