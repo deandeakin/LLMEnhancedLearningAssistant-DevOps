@@ -100,6 +100,9 @@ This address is intended for the Android emulator to communicate with a backend 
 - Expand account plans so different plans unlock different learning features
 - Add optional backend support for public profile links and cloud-synced history
 
+## Notes
+- The project uses an automated Jenkins CI/CD pipeline with build, test, code quality, security, staging deployment, production release and monitoring stages.
+
 ## Author
 Dean Kennedy  
 s224318581
